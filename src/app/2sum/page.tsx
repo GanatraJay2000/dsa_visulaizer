@@ -3,32 +3,26 @@ import List from "@/components/genList";
 import React, { useEffect, useState } from "react";
 
 import { formSchema } from "@/components/MyDrawer";
+import { z } from "zod";
 import MyLogs from "@/components/MyLogs";
 import MyTitle from "@/components/MyTitle";
 import MyAlert from "@/components/MyAlert";
 import MyButtons from "@/components/MyButtons";
-import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface BinarySearchProps {
+interface TwoSumProps {
   value?: number[];
   tar?: number;
 }
 
-function BinarySearch({
-  value = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-  ],
-  tar = 17,
-}: BinarySearchProps) {
+function TwoSum({ value = [2, 7, 11, 15], tar = 26 }: TwoSumProps) {
   const [autoNext, setAutoNext] = useState(false);
   const [autoNextSpeed, setAutoNextSpeed] = useState(1000);
   const [fail, setFail] = useState(false);
   const [success, setSuccess] = useState(false);
   const [click, setClick] = useState<null | number>(null);
-  const initLogs = [
-    "Loading List & Target | Adding Left and Right Pointers...",
-  ];
+  const initLogs = ["Loading List"];
   const [logs, setLogs] = useState<string[]>(initLogs);
   const [intervalId, setIntervalId] = useState<
     Array<NodeJS.Timeout | string | number | undefined>
@@ -37,11 +31,19 @@ function BinarySearch({
   // ?============================================================================================================
   const [nums, setNums] = useState(value);
   const [target, setTarget] = useState(tar);
-  const [l, setL] = useState(0);
-  const [r, setR] = useState(nums.length - 1);
-  const [showM, setShowM] = useState(true);
-  const [m, setM] = useState<number | undefined>(undefined);
+  const [l, setL] = useState<{ val: number }>({ val: 0 });
+  const [r, setR] = useState<{ val: number }>({ val: 1 });
   // ?============================================================================================================
+
+  function debounce(func: Function, timeout = 150) {
+    let timer: NodeJS.Timeout;
+    return (...args: any) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        func(...args);
+      }, timeout);
+    };
+  }
 
   useEffect(() => {
     if (autoNext) {
@@ -54,17 +56,19 @@ function BinarySearch({
     }
   }, [autoNext]);
 
-  const reset = () => {
+  const _reset = () => {
     setAutoNext(false);
     intervalId.forEach(clearInterval);
-    setR(nums.length - 1);
+
     setClick(null);
     setSuccess(false);
-    setM(undefined);
-    setL(0);
     setFail(false);
     setLogs(initLogs);
+
+    setL({ val: 0 });
   };
+
+  const reset = debounce(_reset);
 
   useEffect(() => {
     reset();
@@ -74,81 +78,77 @@ function BinarySearch({
 
   const customLogEntry = {
     failed: () =>
-      setLogs((logs) => [...logs, `Failed to find target ${target}`]),
-    success: (_m: number) =>
-      setLogs((logs) => [...logs, `Target Found at Index ${_m}`]),
-    midPoint: (_m: number) =>
+      setLogs((logs) => [...logs, `Failed to find items that total ${target}`]),
+    success: (_l: number, _r: number) =>
       setLogs((logs) => [
         ...logs,
-        `Midpoint Index: ${_m} | Value: ${nums[_m]}`,
+        `Target calculated at Index ${_l} and ${_r}`,
       ]),
-    moveLeft: (_m: number) =>
+    next: (_l: number, _r: number) => {
+      let sum = nums[_l] + nums[_r];
+
       setLogs((logs) => [
         ...logs,
-        `Target is greater than ${nums[_m]} | Moving Left Pointer to Index: ${
-          _m + 1
+        `Checking ${nums[_l]} + ${nums[_r]} = ${sum} ${
+          sum === target ? "✅" : "❌"
         }`,
-      ]),
-    moveRight: (_m: number) =>
-      setLogs((logs) => [
-        ...logs,
-        `Target is less than ${nums[_m]} | Moving Right Pointer to Index: ${
-          _m - 1
-        }`,
-      ]),
+      ]);
+    },
   };
 
   useEffect(() => {
-    reset();
-
-    if (r < l) {
+    if (success) return;
+    if (l.val >= nums.length - 2) {
       setFail(true);
       customLogEntry.failed();
-      setAutoNext(false);
-      intervalId.forEach(clearInterval);
+      return;
     }
   }, []);
 
   useEffect(() => {
+    if (l.val == 0) {
+      checkSuccess();
+    }
     if (success) return;
-    if (click == null) return;
-
-    if (r < l) {
-      setFail(true);
-      customLogEntry.failed();
-      setAutoNext(false);
-      intervalId.forEach(clearInterval);
-      return;
-    }
-    let _m = Math.floor((l + r) / 2);
-    setM(_m);
-
-    if (click! % 2 === 1) {
-      setShowM(true);
-      customLogEntry.midPoint(_m);
-    }
-
-    if (nums[_m] === target) {
-      customLogEntry.success(_m);
-      setSuccess(true);
-    }
-  }, [click]);
+    setR({ val: l.val + 1 });
+  }, [l]);
 
   useEffect(() => {
-    if (click! % 2 === 1) return;
-    if (m == undefined) return;
-    if (nums[m] === target) {
-      setSuccess(true);
-    } else if (nums[m] < target) {
-      customLogEntry.moveLeft(m);
-      setShowM(false);
-      setL(m + 1);
-    } else {
-      customLogEntry.moveRight(m);
-      setShowM(false);
-      setR(m - 1);
+    if (success) return;
+    customLogEntry.next(l.val, r.val);
+    checkSuccess();
+  }, [r]);
+
+  useEffect(() => {
+    if (success) customLogEntry.success(l.val, r.val);
+    setAutoNext(false);
+  }, [success, fail]);
+
+  useEffect(() => {
+    setSuccess(false);
+    if (click == null) return;
+
+    if (l.val >= nums.length - 2) {
+      setFail(true);
+      customLogEntry.failed();
+      return;
     }
-  }, [m, click]);
+    if (r.val >= nums.length) {
+      setFail(true);
+      customLogEntry.failed();
+      return;
+    }
+    if (r.val >= nums.length - 1) {
+      setL((a) => ({ val: a.val + 1 }));
+      return;
+    }
+
+    setR((a) => ({ val: a.val + 1 }));
+  }, [click]);
+
+  function checkSuccess() {
+    if (nums[l.val] + nums[r.val] === target) setSuccess(true);
+  }
 
   const handleFormSubmit = (data: z.infer<typeof formSchema>) => {
     reset();
@@ -166,34 +166,40 @@ function BinarySearch({
 
   return (
     <div className="flex flex-col gap-24 items-center p-20">
-      <MyTitle title="Binary Search" />
+      <MyTitle title="Two Sum" />
       {fail ? (
         <MyAlert title={`Failed to find the target: ${target}`} />
       ) : (
-        <List
-          params={{
-            value: nums,
-            target,
-            l,
-            r,
-            m,
-            showM,
-            success,
-            itemVariant: ({ _val, _index, value, target, r, l }) =>
-              target !== null && _val === target
-                ? "default"
-                : _index &&
-                  _index >= (l ?? 0) &&
-                  _index <= (r ?? value.length - 1)
-                ? "outline"
-                : "ghost",
-            itemClass: ({ showM, _index, m, success }) =>
-              cn("", {
-                "bg-blue-200": showM && _index === m,
-                "bg-green-500": success && _index === m,
-              }),
-          }}
-        />
+        <div className="flex gap-20">
+          {l !== null && r !== null && success !== null && (
+            <List
+              params={{
+                value: nums,
+                l: l.val,
+                r: r.val,
+                success,
+                colorL: "bg-yellow-200",
+                colorR: "bg-blue-200",
+                arrows: false,
+                itemVariant: () => "outline",
+                itemClass: ({ _index, r, colorR, colorL, l, success }) => {
+                  return cn(
+                    `${_index == r && colorR && !success ? colorR : ""} ${
+                      _index == l && colorL && !success ? colorL : ""
+                    }
+                 ${
+                   success == true && (_index == l || _index == r)
+                     ? "bg-green-200"
+                     : ""
+                 }
+                `
+                  );
+                },
+              }}
+            />
+          )}
+          <Button>{target}</Button>
+        </div>
       )}
       <MyButtons
         stateVars={{
@@ -213,4 +219,4 @@ function BinarySearch({
   );
 }
 
-export default BinarySearch;
+export default TwoSum;

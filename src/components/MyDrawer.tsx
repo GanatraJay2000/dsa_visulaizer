@@ -106,12 +106,12 @@ const MyDrawer = ({
               )}
             />
             <div className="flex gap-2">
-              <DrawerClose>
+              <DrawerClose asChild>
                 <Button type="submit" className="w-full">
                   Submit
                 </Button>
               </DrawerClose>
-              <DrawerClose>
+              <DrawerClose asChild>
                 <Button type="button" variant="outline">
                   Cancel
                 </Button>
