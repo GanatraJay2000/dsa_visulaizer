@@ -11,12 +11,9 @@ import MyButtons from "@/components/MyButtons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface TwoSumProps {
-  value?: number[];
-  tar?: number;
-}
-
-function TwoSum({ value = [2, 7, 11, 15], tar = 26 }: TwoSumProps) {
+function TwoSum() {
+  const val = [2, 7, 11, 15];
+  const tar = 26;
   const [autoNext, setAutoNext] = useState(false);
   const [autoNextSpeed, setAutoNextSpeed] = useState(1000);
   const [fail, setFail] = useState(false);
@@ -29,7 +26,7 @@ function TwoSum({ value = [2, 7, 11, 15], tar = 26 }: TwoSumProps) {
   >([]);
 
   // ?============================================================================================================
-  const [nums, setNums] = useState(value);
+  const [nums, setNums] = useState(val);
   const [target, setTarget] = useState(tar);
   const [l, setL] = useState<{ val: number }>({ val: 0 });
   const [r, setR] = useState<{ val: number }>({ val: 1 });

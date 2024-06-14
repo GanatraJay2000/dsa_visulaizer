@@ -10,17 +10,11 @@ import MyButtons from "@/components/MyButtons";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
 
-interface BinarySearchProps {
-  value?: number[];
-  tar?: number;
-}
-
-function BinarySearch({
-  value = [
+function BinarySearch() {
+  const value = [
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-  ],
-  tar = 17,
-}: BinarySearchProps) {
+  ];
+  const tar = 17;
   const [autoNext, setAutoNext] = useState(false);
   const [autoNextSpeed, setAutoNextSpeed] = useState(1000);
   const [fail, setFail] = useState(false);
