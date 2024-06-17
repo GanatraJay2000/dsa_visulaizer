@@ -24,8 +24,8 @@ interface GenListPropsParams {
   success?: boolean;
   target?: number;
   _index?: number;
-  _val?: number;
-  value: number[];
+  _val?: number | string;
+  value: number[] | string[];
 }
 
 interface GenListProps {

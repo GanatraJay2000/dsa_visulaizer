@@ -11,6 +11,9 @@ export default function Home() {
       <Link href="/2sum" className={buttonVariants()}>
         2 Sum
       </Link>
+      <Link href="/longest-unique-substring" className={buttonVariants()}>
+        Longest Unique Substring
+      </Link>
     </main>
   );
 }

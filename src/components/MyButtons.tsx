@@ -3,9 +3,13 @@ import ToolTip from "./tooltip";
 import { Switch } from "./ui/switch";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
-import MyDrawer from "./MyDrawer";
+import MyDrawer, { GenericFormSchema } from "./MyDrawer";
 
-function MyButtons({ stateVars }: { stateVars: any }) {
+function MyButtons<T extends GenericFormSchema>({
+  stateVars,
+}: {
+  stateVars: any;
+}) {
   const {
     autoNext,
     setAutoNext,
@@ -13,9 +17,12 @@ function MyButtons({ stateVars }: { stateVars: any }) {
     reset,
     target,
     nums,
+    s,
     success,
     autoNextSpeed,
     handleFormSubmit,
+    formSchema,
+    defValues,
   } = stateVars;
   return (
     <div className="flex gap-2 items-center">
@@ -37,11 +44,14 @@ function MyButtons({ stateVars }: { stateVars: any }) {
       <Button variant="destructive" onClick={reset}>
         Reset
       </Button>
-      <MyDrawer
+      <MyDrawer<T>
         target={target}
         nums={nums}
+        s={s}
         autoNextSpeed={autoNextSpeed}
         onSubmit={handleFormSubmit}
+        formSchema={formSchema}
+        defValues={defValues}
       />
     </div>
   );

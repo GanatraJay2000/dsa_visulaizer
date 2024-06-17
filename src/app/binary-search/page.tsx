@@ -2,7 +2,6 @@
 import List from "@/components/genList";
 import React, { useEffect, useState } from "react";
 
-import { formSchema } from "@/components/MyDrawer";
 import MyLogs from "@/components/MyLogs";
 import MyTitle from "@/components/MyTitle";
 import MyAlert from "@/components/MyAlert";
@@ -144,6 +143,12 @@ function BinarySearch() {
     }
   }, [m, click]);
 
+  const formSchema = z.object({
+    target: z.string(),
+    list: z.string(),
+    autoSpeed: z.string(),
+  });
+
   const handleFormSubmit = (data: z.infer<typeof formSchema>) => {
     reset();
     setTarget(parseInt(data.target));
@@ -173,14 +178,14 @@ function BinarySearch() {
             m,
             showM,
             success,
-            itemVariant: ({ _val, _index, value, target, r, l }) =>
-              target !== null && _val === target
+            itemVariant: ({ _val, _index, value, target, l, r }) => {
+              return target !== null && _val === target
                 ? "default"
                 : _index &&
-                  _index >= (l ?? 0) &&
-                  _index <= (r ?? value.length - 1)
-                ? "outline"
-                : "ghost",
+                  (_index < (l ?? 0) || _index > (r ?? value.length - 1))
+                ? "ghost"
+                : "outline";
+            },
             itemClass: ({ showM, _index, m, success }) =>
               cn("", {
                 "bg-blue-200": showM && _index === m,
@@ -189,7 +194,7 @@ function BinarySearch() {
           }}
         />
       )}
-      <MyButtons
+      <MyButtons<typeof formSchema>
         stateVars={{
           autoNext,
           setAutoNext,
@@ -200,6 +205,12 @@ function BinarySearch() {
           success,
           autoNextSpeed,
           handleFormSubmit,
+          formSchema,
+          defValues: {
+            target: target.toString(),
+            list: nums.toString(),
+            autoSpeed: autoNextSpeed.toString(),
+          },
         }}
       />
       <MyLogs logs={logs} />

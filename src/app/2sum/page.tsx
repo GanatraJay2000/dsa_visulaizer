@@ -2,7 +2,6 @@
 import List from "@/components/genList";
 import React, { useEffect, useState } from "react";
 
-import { formSchema } from "@/components/MyDrawer";
 import { z } from "zod";
 import MyLogs from "@/components/MyLogs";
 import MyTitle from "@/components/MyTitle";
@@ -147,6 +146,12 @@ function TwoSum() {
     if (nums[l.val] + nums[r.val] === target) setSuccess(true);
   }
 
+  const formSchema = z.object({
+    target: z.string(),
+    list: z.string(),
+    autoSpeed: z.string(),
+  });
+
   const handleFormSubmit = (data: z.infer<typeof formSchema>) => {
     reset();
     setTarget(parseInt(data.target));
@@ -198,7 +203,7 @@ function TwoSum() {
           <Button>{target}</Button>
         </div>
       )}
-      <MyButtons
+      <MyButtons<typeof formSchema>
         stateVars={{
           autoNext,
           setAutoNext,
@@ -209,6 +214,12 @@ function TwoSum() {
           success,
           autoNextSpeed,
           handleFormSubmit,
+          formSchema,
+          defValues: {
+            target: target.toString(),
+            list: nums.toString(),
+            autoSpeed: autoNextSpeed.toString(),
+          },
         }}
       />
       <MyLogs logs={logs} />

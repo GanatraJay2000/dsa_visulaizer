@@ -1,4 +1,4 @@
-import { Bolt } from "lucide-react";
+import { Bolt, Target } from "lucide-react";
 import React from "react";
 import { Button } from "./ui/button";
 import {
@@ -20,33 +20,35 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { DefaultValues, Path, useForm } from "react-hook-form";
+import { TypeOf, z } from "zod";
 
-export const formSchema = z.object({
-  target: z.string(),
-  list: z.string(),
+const genericFormSchema = z.object({
   autoSpeed: z.string(),
 });
 
-const MyDrawer = ({
+export type GenericFormSchema = typeof genericFormSchema;
+
+const MyDrawer = <T extends z.ZodTypeAny>({
   target,
   nums,
+  s,
   autoNextSpeed,
   onSubmit,
+  formSchema,
+  defValues,
 }: {
   target: number;
   nums: number[];
+  s: string;
   autoNextSpeed: number;
-  onSubmit: (data: z.infer<typeof formSchema>) => void;
+  formSchema: T;
+  defValues?: DefaultValues<z.infer<T>>;
+  onSubmit: (data: z.infer<T>) => void;
 }) => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.infer<T>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      target: target.toString(),
-      list: nums.join(","),
-      autoSpeed: autoNextSpeed.toString(),
-    },
+    defaultValues: defValues,
   });
   return (
     <Drawer>
@@ -61,37 +63,57 @@ const MyDrawer = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-8 md:w-4/12 mx-auto py-20"
           >
+            {target && (
+              <FormField
+                control={form.control}
+                name={"target" as Path<TypeOf<T>>}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Target</FormLabel>
+                    <FormControl>
+                      <Input placeholder="9" {...field} />
+                    </FormControl>
+                    <FormDescription>Item to be found</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {nums && (
+              <FormField
+                control={form.control}
+                name={"list" as Path<TypeOf<T>>}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>List Items</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1,2,3,4,5,6,7,8,9" {...field} />
+                    </FormControl>
+                    <FormDescription>Comma Seperated List</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {s && (
+              <FormField
+                control={form.control}
+                name={"s" as Path<TypeOf<T>>}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>String</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Hello World" {...field} />
+                    </FormControl>
+                    <FormDescription>String to be searched</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
-              name="target"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Target</FormLabel>
-                  <FormControl>
-                    <Input placeholder="9" {...field} />
-                  </FormControl>
-                  <FormDescription>Item to be found</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="list"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>List Items</FormLabel>
-                  <FormControl>
-                    <Input placeholder="1,2,3,4,5,6,7,8,9" {...field} />
-                  </FormControl>
-                  <FormDescription>Comma Seperated List</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="autoSpeed"
+              name={"autoSpeed" as Path<TypeOf<T>>}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Auto-Next Speed</FormLabel>
