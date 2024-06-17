@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex gap-2 min-h-screen items-center justify-center">
+    <main className="flex flex-col md:flex-row gap-2 min-h-screen items-center justify-center">
       <Link href="/binary-search" className={buttonVariants()}>
         Binary Search
       </Link>
@@ -14,6 +14,8 @@ export default function Home() {
       <Link href="/longest-unique-substring" className={buttonVariants()}>
         Longest Unique Substring
       </Link>
+      ..........
+      <div className="absolute bottom-0">&gt;_ Working on Responsiveness</div>
     </main>
   );
 }

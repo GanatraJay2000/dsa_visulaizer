@@ -1,13 +1,13 @@
 "use client";
 import List from "@/components/genList";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import MyLogs from "@/components/MyLogs";
 import MyTitle from "@/components/MyTitle";
-import MyAlert from "@/components/MyAlert";
 import MyButtons from "@/components/MyButtons";
-import { set, z } from "zod";
+import { z } from "zod";
 import { cn } from "@/lib/utils";
+import { CopyBlock, dracula } from "react-code-blocks";
 
 function LongestUniqueSubstring() {
   const value = "abcabcbb";
@@ -161,43 +161,74 @@ function LongestUniqueSubstring() {
     setAutoNextSpeed(parseInt(data.autoSpeed));
   };
 
-  return (
-    <div className="flex flex-col gap-24 items-center p-20">
-      <MyTitle title="Longest Unique Substring" />
+  const code = `/**
+ * @param {string} s
+ * @return {number}
+ */
 
-      <List
-        params={{
-          l,
-          r,
-          value: s.split(""),
-          success,
-          arrows: false,
-          itemVariant: ({ _val, _index, value, target, r, l }) => {
-            return "outline";
-          },
-          itemClass: ({ _index, l, r }) => {
-            return cn("", {
-              "bg-blue-200": _index! >= l! && _index! <= r!,
-              "bg-green-200": success && _index! >= maxL! && _index! <= maxR!,
-            });
-          },
-        }}
-      />
-      <MyButtons<typeof formSchema>
-        stateVars={{
-          autoNext,
-          setAutoNext,
-          setClick,
-          reset,
-          s,
-          success,
-          autoNextSpeed,
-          handleFormSubmit,
-          formSchema,
-          defValues: { s, autoSpeed: autoNextSpeed.toString() },
-        }}
-      />
-      <MyLogs logs={logs} />
+var lengthOfLongestSubstring = function(s) {
+    let map = [];
+    let max = 0
+    for(let i = 0; i < s.length; i++){
+        const idx = map.indexOf(s[i])
+        if (idx != -1) map = map.slice(idx+1)
+        map.push(s[i])
+        max = Math.max(max, map.length)
+    }
+    max = Math.max(max, map.length)
+    return max
+};
+  `;
+
+  return (
+    <div className="flex flex-col md:flex-row min-h-screen h-full items-stretch">
+      <div className="flex flex-col gap-24 items-center justify-center md:px-20 md:pt-20 p-5">
+        <MyTitle title="Longest Unique Substring" />
+
+        <List
+          params={{
+            l,
+            r,
+            value: s.split(""),
+            success,
+            arrows: false,
+            itemVariant: () => "outline",
+            itemClass: ({ _index, l, r }) => {
+              return cn("", {
+                "bg-blue-200": _index! >= l! && _index! <= r!,
+                "bg-green-200": success && _index! >= maxL! && _index! <= maxR!,
+              });
+            },
+          }}
+        />
+        <MyButtons<typeof formSchema>
+          stateVars={{
+            autoNext,
+            setAutoNext,
+            setClick,
+            reset,
+            s,
+            success,
+            autoNextSpeed,
+            handleFormSubmit,
+            formSchema,
+            defValues: { s, autoSpeed: autoNextSpeed.toString() },
+          }}
+        />
+        <MyLogs logs={logs} />
+      </div>
+
+      <div className="min-h-screen h-full w-full flex flex-col justify-center items-start p-10 bg-[#282a36]">
+        <h1 className="text-xl font-bold text-white">Code</h1>
+        <CopyBlock
+          customStyle={{ width: "100%" }}
+          text={code}
+          language="javascript"
+          showLineNumbers
+          theme={dracula}
+          wrapLongLines
+        />
+      </div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import MyAlert from "@/components/MyAlert";
 import MyButtons from "@/components/MyButtons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { CopyBlock, dracula } from "react-code-blocks";
 
 function TwoSum() {
   const val = [2, 7, 11, 15];
@@ -166,63 +167,90 @@ function TwoSum() {
     setAutoNextSpeed(parseInt(data.autoSpeed));
   };
 
+  const code = `var twoSum = function(nums, target) {
+    const pairIdx = {};
+
+    for (let i = 0; i < nums.length; i++) {
+        const num = nums[i];
+        if (target - num in pairIdx) {
+            return [i, pairIdx[target - num]];
+        }
+        pairIdx[num] = i;
+    }    
+};
+  `;
+
   return (
-    <div className="flex flex-col gap-24 items-center p-20">
-      <MyTitle title="Two Sum" />
-      {fail ? (
-        <MyAlert title={`Failed to find the target: ${target}`} />
-      ) : (
-        <div className="flex gap-20">
-          {l !== null && r !== null && success !== null && (
-            <List
-              params={{
-                value: nums,
-                l: l.val,
-                r: r.val,
-                success,
-                colorL: "bg-yellow-200",
-                colorR: "bg-blue-200",
-                arrows: false,
-                itemVariant: () => "outline",
-                itemClass: ({ _index, r, colorR, colorL, l, success }) => {
-                  return cn(
-                    `${_index == r && colorR && !success ? colorR : ""} ${
-                      _index == l && colorL && !success ? colorL : ""
-                    }
+    <div className="flex md:flex-row flex-col min-h-screen h-full items-stretch">
+      <div className="flex flex-col gap-24 items-center justify-center p-5 md:pt-20 md:px-20">
+        <MyTitle title="Two Sum" />
+        {fail ? (
+          <MyAlert title={`Failed to find the target: ${target}`} />
+        ) : (
+          <div className="flex gap-20">
+            {l !== null && r !== null && success !== null && (
+              <List
+                params={{
+                  value: nums,
+                  l: l.val,
+                  r: r.val,
+                  success,
+                  colorL: "bg-yellow-200",
+                  colorR: "bg-blue-200",
+                  arrows: false,
+                  itemVariant: () => "outline",
+                  itemClass: ({ _index, r, colorR, colorL, l, success }) => {
+                    return cn(
+                      `${_index == r && colorR && !success ? colorR : ""} ${
+                        _index == l && colorL && !success ? colorL : ""
+                      }
                  ${
                    success == true && (_index == l || _index == r)
                      ? "bg-green-200"
                      : ""
                  }
                 `
-                  );
-                },
-              }}
-            />
-          )}
-          <Button>{target}</Button>
-        </div>
-      )}
-      <MyButtons<typeof formSchema>
-        stateVars={{
-          autoNext,
-          setAutoNext,
-          setClick,
-          reset,
-          target,
-          nums,
-          success,
-          autoNextSpeed,
-          handleFormSubmit,
-          formSchema,
-          defValues: {
-            target: target.toString(),
-            list: nums.toString(),
-            autoSpeed: autoNextSpeed.toString(),
-          },
-        }}
-      />
-      <MyLogs logs={logs} />
+                    );
+                  },
+                }}
+              />
+            )}
+            <Button>{target}</Button>
+          </div>
+        )}
+        <MyButtons<typeof formSchema>
+          stateVars={{
+            autoNext,
+            setAutoNext,
+            setClick,
+            reset,
+            target,
+            nums,
+            success,
+            autoNextSpeed,
+            handleFormSubmit,
+            formSchema,
+            defValues: {
+              target: target.toString(),
+              list: nums.toString(),
+              autoSpeed: autoNextSpeed.toString(),
+            },
+          }}
+        />
+        <MyLogs logs={logs} />
+      </div>
+
+      <div className="min-h-screen h-full w-full flex flex-col justify-center items-start p-10 bg-[#282a36]">
+        <h1 className="text-xl font-bold text-white">Code</h1>
+        <CopyBlock
+          customStyle={{ width: "100%" }}
+          text={code}
+          language="javascript"
+          showLineNumbers
+          theme={dracula}
+          wrapLongLines
+        />
+      </div>
     </div>
   );
 }

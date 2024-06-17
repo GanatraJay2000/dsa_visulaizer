@@ -8,12 +8,11 @@ import MyAlert from "@/components/MyAlert";
 import MyButtons from "@/components/MyButtons";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
+import { CopyBlock, dracula } from "react-code-blocks";
 
 function BinarySearch() {
-  const value = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-  ];
-  const tar = 17;
+  const value = [-1, 0, 3, 5, 9, 12];
+  const tar = 9;
   const [autoNext, setAutoNext] = useState(false);
   const [autoNextSpeed, setAutoNextSpeed] = useState(1000);
   const [fail, setFail] = useState(false);
@@ -163,57 +162,85 @@ function BinarySearch() {
     setAutoNextSpeed(parseInt(data.autoSpeed));
   };
 
+  const code = `class Solution:
+    def search(self, nums, target):
+        s = 0
+        e = len(nums) - 1
+        while (s <= e):
+            mid = (s+e) // 2
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] < target:
+                s = mid + 1
+            else:
+                e = mid - 1
+        return -1
+  `;
+
   return (
-    <div className="flex flex-col gap-24 items-center p-20">
-      <MyTitle title="Binary Search" />
-      {fail ? (
-        <MyAlert title={`Failed to find the target: ${target}`} />
-      ) : (
-        <List
-          params={{
-            value: nums,
+    <div className="flex flex-col md:flex-row min-h-screen h-full items-stretch">
+      <div className="flex flex-col gap-24 items-center p-5 md:px-20 md:pt-20">
+        <MyTitle title="Binary Search" />
+        {fail ? (
+          <MyAlert title={`Failed to find the target: ${target}`} />
+        ) : (
+          <List
+            params={{
+              value: nums,
+              target,
+              l,
+              r,
+              m,
+              showM,
+              success,
+              itemVariant: ({ _val, _index, value, target, l, r }) => {
+                return target !== null && _val === target
+                  ? "default"
+                  : _index &&
+                    (_index < (l ?? 0) || _index > (r ?? value.length - 1))
+                  ? "ghost"
+                  : "outline";
+              },
+              itemClass: ({ showM, _index, m, success }) =>
+                cn("", {
+                  "bg-blue-200": showM && _index === m,
+                  "bg-green-500": success && _index === m,
+                }),
+            }}
+          />
+        )}
+        <MyButtons<typeof formSchema>
+          stateVars={{
+            autoNext,
+            setAutoNext,
+            setClick,
+            reset,
             target,
-            l,
-            r,
-            m,
-            showM,
+            nums,
             success,
-            itemVariant: ({ _val, _index, value, target, l, r }) => {
-              return target !== null && _val === target
-                ? "default"
-                : _index &&
-                  (_index < (l ?? 0) || _index > (r ?? value.length - 1))
-                ? "ghost"
-                : "outline";
+            autoNextSpeed,
+            handleFormSubmit,
+            formSchema,
+            defValues: {
+              target: target.toString(),
+              list: nums.toString(),
+              autoSpeed: autoNextSpeed.toString(),
             },
-            itemClass: ({ showM, _index, m, success }) =>
-              cn("", {
-                "bg-blue-200": showM && _index === m,
-                "bg-green-500": success && _index === m,
-              }),
           }}
         />
-      )}
-      <MyButtons<typeof formSchema>
-        stateVars={{
-          autoNext,
-          setAutoNext,
-          setClick,
-          reset,
-          target,
-          nums,
-          success,
-          autoNextSpeed,
-          handleFormSubmit,
-          formSchema,
-          defValues: {
-            target: target.toString(),
-            list: nums.toString(),
-            autoSpeed: autoNextSpeed.toString(),
-          },
-        }}
-      />
-      <MyLogs logs={logs} />
+        <MyLogs logs={logs} />
+      </div>
+
+      <div className="min-h-screen h-full w-full flex flex-col justify-center items-start p-10 bg-[#282a36]">
+        <h1 className="text-xl font-bold text-white">Code</h1>
+        <CopyBlock
+          customStyle={{ width: "100%" }}
+          text={code}
+          language="python"
+          showLineNumbers
+          theme={dracula}
+        />
+      </div>
     </div>
   );
 }
